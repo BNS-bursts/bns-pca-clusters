@@ -49,7 +49,7 @@ loo=False
 
 eos="all"
 mass="all"
-mass="135135"
+mass="all"
 viscosity="lessvisc"
 
 
@@ -135,11 +135,20 @@ for w, wave in enumerate(waveform_data.waves):
 timefreq_mean = pmpca.pca['timefreq_mean'].reshape(height, width)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Dump to mat file
+# Dump to mat files
 #
 
 #
-# Extract relevant data
+# Dump time-domain waveforms
+#
+injections = {}
+for w,wave in enumerate(waveform_data.waves):
+    name = wave['eos']+'_'+wave['mass']
+    injections[name] = pmpca.cat_timedomain[w]
+sio.savemat('postmergerinj.mat', injections)
+
+#
+# Extract and dump ALL relevant data (including PCs)
 #
 print pmpca.pca.keys()
 
