@@ -89,6 +89,10 @@ nmapcols=2048
 timefreq_principal_components = np.zeros(shape=(waveform_data.nwaves, nmaprows,
     nmapcols))
 
+#
+# Dump time-domain waveforms
+#
+injections = {}
 
 for w, wave in enumerate(waveform_data.waves):
 
@@ -101,6 +105,10 @@ for w, wave in enumerate(waveform_data.waves):
     waveform = pwave.Waveform(eos=wave['eos'], mass=wave['mass'],
             viscosity=wave['viscosity'])
     waveform.reproject_waveform()
+
+    name = wave['eos']+'_'+wave['mass']
+    injections[name] = np.copy(waveform.hplus.data)
+
 
     # Standardise
     waveform_FD, target_fpeak, _ = ppca.condition_spectrum(
@@ -138,14 +146,6 @@ timefreq_mean = pmpca.pca['timefreq_mean'].reshape(height, width)
 # Dump to mat files
 #
 
-#
-# Dump time-domain waveforms
-#
-injections = {}
-for w,wave in enumerate(waveform_data.waves):
-    name = wave['eos']+'_'+wave['mass']
-    injections[name] = pmpca.cat_timedomain[w]
-sio.savemat('postmergerinj.mat', injections)
 
 #
 # Extract and dump ALL relevant data (including PCs)
@@ -172,6 +172,7 @@ outputdata = {'fourier_frequencies':pmpca.sample_frequencies,
 
 
 sio.savemat('postmergerpca.mat', outputdata)
+sio.savemat('postmergerinj.mat', injections)
 
 
 
