@@ -49,6 +49,7 @@ loo=False
 
 eos="all"
 mass="all"
+mass="135135"
 viscosity="lessvisc"
 
 
@@ -68,8 +69,8 @@ if viscosity=="all": viscosity=None
 waveform_data = pdata.WaveData(eos=eos,viscosity=viscosity, mass=mass)
 
 # XXX: get rid of the DD2new waveform
-eoss = [wave['eos'] for wave in waveform_data.waves]
-waveform_data.remove_wave(waveform_data.waves[eoss=="dd2new"])
+for wave in waveform_data.waves:
+    if wave['eos'] == "dd2new": waveform_data.remove_wave(wave)
 
 #
 # Create PMNS PCA instance for the full catalogue

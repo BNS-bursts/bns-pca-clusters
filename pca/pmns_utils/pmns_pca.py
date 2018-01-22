@@ -498,11 +498,11 @@ class pmnsPCA:
         # Finally, project test spectrum onto PCs
         #
         projection['magnitude_betas'] = np.concatenate(
-                self.pca['magnitude_pca'].transform(magnitude_cent)
+                self.pca['magnitude_pca'].transform(magnitude_cent.reshape(1,-1))
                 )
 
         projection['phase_betas'] = np.concatenate(
-                self.pca['phase_pca'].transform(phase_cent)
+                self.pca['phase_pca'].transform(phase_cent.reshape(1,-1))
                 )
 
         return projection
@@ -691,7 +691,7 @@ class pmnsPCA:
         # Finally, project test map onto PCs
         #
         projection['timefreq_betas'] = np.concatenate(
-                self.pca['timefreq_pca'].transform(reshaped_map)
+                self.pca['timefreq_pca'].transform(reshaped_map.reshape(1,-1))
                 )
 
         return projection
