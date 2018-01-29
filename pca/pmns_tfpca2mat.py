@@ -36,6 +36,10 @@ from pmns_utils import pmns_pca as ppca
 
 from scipy import io as sio
 
+from pycbc.types import TimeSeries
+from pycbc.waveform import taper_timeseries
+
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Construct the full waveform catalogue and perform PCA
@@ -48,7 +52,7 @@ fcenter=2710
 loo=False
 
 eos="all"
-mass="all"
+#mass="135135"
 mass="all"
 viscosity="lessvisc"
 
@@ -107,8 +111,10 @@ for w, wave in enumerate(waveform_data.waves):
     waveform.reproject_waveform()
 
     name = wave['eos']+'_'+wave['mass']
-    injections[name] = np.copy(waveform.hplus.data)
-
+    #injections[name] = (np.copy(waveform.hplus.data),
+    #        np.copy(waveform.hcross.data))
+    injections[name] = (pwave.taper_start(waveform.hplus),
+            pwave.taper_start(waveform.hcross))
 
     # Standardise
     waveform_FD, target_fpeak, _ = ppca.condition_spectrum(
