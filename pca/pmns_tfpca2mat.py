@@ -98,6 +98,7 @@ timefreq_principal_components = np.zeros(shape=(waveform_data.nwaves, nmaprows,
 #
 #injections = {}
 injections = []
+names=[]
 
 for w, wave in enumerate(waveform_data.waves):
 
@@ -112,6 +113,7 @@ for w, wave in enumerate(waveform_data.waves):
     waveform.reproject_waveform()
 
     name = wave['eos']+'_'+wave['mass']
+    names.append(name)
 
     #injections[name] = (pwave.taper_start(waveform.hplus),
     #                    pwave.taper_start(waveform.hcross))
@@ -162,6 +164,7 @@ print pmpca.pca.keys()
 
 outputdata = {
     'injection_waves':injections,
+    'waveform_names':names,
     'fourier_frequencies':pmpca.sample_frequencies,
     'time_domain_waveforms':pmpca.cat_timedomain,
     'fcenter':2710.0,

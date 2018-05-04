@@ -51,6 +51,7 @@ class WaveData:
         except KeyError:
             print >> sys.stderr, "BNSCLUSTERS_PREFIX environment variable not" \
                     " set, please check env"
+            sys.exit(-1)
 
         # All the data files (NOTE that this will exclude the special cases due
         # to the directory structure):
