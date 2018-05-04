@@ -96,33 +96,35 @@ timefreq_principal_components = np.zeros(shape=(waveform_data.nwaves, nmaprows,
 #
 # Dump time-domain waveforms
 #
-injections = {}
+#injections = {}
+injections = []
 
 for w, wave in enumerate(waveform_data.waves):
 
     print "Projecting %s, %s ,%s (%d of %d)"%(
-            wave['eos'], wave['mass'], wave['viscosity'], w+1,
-            waveform_data.nwaves)
+        wave['eos'], wave['mass'], wave['viscosity'], w+1,
+        waveform_data.nwaves)
 
     # --- Fourier Domain Analysis --- #
     # Get complex spectrum of this waveform
     waveform = pwave.Waveform(eos=wave['eos'], mass=wave['mass'],
-            viscosity=wave['viscosity'])
+                              viscosity=wave['viscosity'])
     waveform.reproject_waveform()
 
     name = wave['eos']+'_'+wave['mass']
-    #injections[name] = (np.copy(waveform.hplus.data),
-    #        np.copy(waveform.hcross.data))
-    injections[name] = (pwave.taper_start(waveform.hplus),
-            pwave.taper_start(waveform.hcross))
+
+    #injections[name] = (pwave.taper_start(waveform.hplus),
+    #                    pwave.taper_start(waveform.hcross))
+    injections.append((pwave.taper_start(waveform.hplus),
+                        pwave.taper_start(waveform.hcross)))
 
     # Standardise
     waveform_FD, target_fpeak, _ = ppca.condition_spectrum(
-            waveform.hplus.data, nsamples=nTsamples)
+        waveform.hplus.data, nsamples=nTsamples)
 
     # Normalise
     waveform_FD = ppca.unit_hrss(waveform_FD.data,
-            delta=waveform_FD.delta_f, domain='frequency')
+                                 delta=waveform_FD.delta_f, domain='frequency')
 
     # Take projection
     projection = pmpca.project_freqseries(waveform_FD)
@@ -136,15 +138,15 @@ for w, wave in enumerate(waveform_data.waves):
 
     # Project
     tf_projection = pmpca.project_tfmap(waveform_tfmap,
-            this_fpeak=pmpca.fpeaks[w])
+                                        this_fpeak=pmpca.fpeaks[w])
 
     timefreq_betas[w,:] = np.copy(tf_projection['timefreq_betas'])
 
     # Reshape to original dims
     for p in xrange(waveform_data.nwaves):
         timefreq_principal_components[p, :, :] = \
-                pmpca.pca['timefreq_pca'].components_[p, :].reshape(height,
-                        width)
+            pmpca.pca['timefreq_pca'].components_[p, :].reshape(height,
+                                                                width)
 
 timefreq_mean = pmpca.pca['timefreq_mean'].reshape(height, width)
 
@@ -158,27 +160,29 @@ timefreq_mean = pmpca.pca['timefreq_mean'].reshape(height, width)
 #
 print pmpca.pca.keys()
 
-outputdata = {'fourier_frequencies':pmpca.sample_frequencies,
-        'time_domain_waveforms':pmpca.cat_timedomain,
-        'fcenter':2710.0,
-        'fpeaks':pmpca.fpeaks,
-        'fourier_magnitudes':pmpca.magnitude,
-        'aligned_fourier_magnitudes':pmpca.magnitude_align,
-        'magnitude_spectrum_mean':pmpca.pca['magnitude_pca'].mean_,
-        'magnitude_principal_components':pmpca.pca['magnitude_pca'].components_,
-        'magnitude_coeffficients':magnitude_betas,
-        'timefreq_maps': pmpca.original_image_cat,
-        'timefreq_scales': pmpca.map_scales,
-        'aligned_timefreq_maps': pmpca.align_image_cat,
-        'timefreq_mean':timefreq_mean,
-        'timefreq_betas':timefreq_betas,
-        'timefreq_principal_components':timefreq_principal_components,
-        'timefreq_frequencies':pmpca.map_frequencies,
-        'timefreq_times':pmpca.map_times}
-
+outputdata = {
+    'injection_waves':injections,
+    'fourier_frequencies':pmpca.sample_frequencies,
+    'time_domain_waveforms':pmpca.cat_timedomain,
+    'fcenter':2710.0,
+    'fpeaks':pmpca.fpeaks,
+    'fourier_magnitudes':pmpca.magnitude,
+    'aligned_fourier_magnitudes':pmpca.magnitude_align,
+    'magnitude_spectrum_mean':pmpca.pca['magnitude_pca'].mean_,
+    'magnitude_principal_components':pmpca.pca['magnitude_pca'].components_,
+    'magnitude_coeffficients':magnitude_betas,
+    'timefreq_maps': pmpca.original_image_cat,
+    'timefreq_scales': pmpca.map_scales,
+    'aligned_timefreq_maps': pmpca.align_image_cat,
+    'timefreq_mean':timefreq_mean,
+    'timefreq_betas':timefreq_betas,
+    'timefreq_principal_components':timefreq_principal_components,
+    'timefreq_frequencies':pmpca.map_frequencies,
+    'timefreq_times':pmpca.map_times
+}
 
 sio.savemat('postmergerpca.mat', outputdata)
-sio.savemat('postmergerinj.mat', injections)
+#sio.savemat('postmergerinj.mat', injections)
 
 
 
